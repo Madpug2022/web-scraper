@@ -5,17 +5,17 @@ It runs a local container MongoDB instance and a local api App to retrieve certa
 
 ## Requeriments
 
-node v22.6.0 - [Node official page]([https://docs.nestjs.com](https://nodejs.org/en/download/package-manager) </br>
+node v22.6.0 - [Node official page](https://nodejs.org/en/download/package-manager) </br>
 npm v10.8.2 - [NPM docs](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) </br>
 docker desktop - [Docker desktop](https://www.docker.com/) 
 
 ## Project setup
 
 There are two ways to set up the project.
-Internally there is a script that will:
-1- Created the required .env file
-2- Install node dependencies
-3- Set up the docker containers
+Internally there is a script that will:  </br>
+1- Created the required .env file  </br>
+2- Install node dependencies  </br>
+3- Set up the docker containers  </br>
 
 You can run the script by using the terminal inside the folder and runing:
 npm run setup.
@@ -24,9 +24,9 @@ npm run setup.
 
 If you prefeer to go on a manual way you could follow the next steps:
 
-1- After cloning the repository change the current .env.example file's name to .env (.env information should never be shared since it is meant to protect sensitive information, but since this is a test we will use it)
-2- Run ``` npm install ``` to install the node dependencies
-3- (You must have installed and opened docker desktop for this step) Run ``` docker compose run -d ``` to initialize the containers [MongoDb and App]
+1- After cloning the repository change the current .env.example file's name to .env (.env information should never be shared since it is meant to protect sensitive information, but since this is a test we will use it)  </br>
+2- Run ``` npm install ``` to install the node dependencies  </br>
+3- (You must have installed and opened docker desktop for this step) Run ``` docker compose run -d ``` to initialize the containers [MongoDb and App]  </br>
 
 This will run a local container with an instance of mongoDB (in port 27017) and the server (in port 3000)
 
