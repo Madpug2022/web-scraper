@@ -1,5 +1,3 @@
-[Scrapper.postman_collection.json](https://github.com/user-attachments/files/17531027/Scrapper.postman_collection.json)
-
 ## Description
 
 This is a web scraper API. 
