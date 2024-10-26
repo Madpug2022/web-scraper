@@ -12,8 +12,6 @@ import { ScraperModule } from './scraper/scraper.module';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         uri: configService.get<string>('DATABASE_URL'),
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
       }),
       inject: [ConfigService],
     }),

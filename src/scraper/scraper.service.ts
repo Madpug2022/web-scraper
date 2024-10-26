@@ -115,4 +115,22 @@ export class ScraperService {
       }
     }
   }
+
+  async getAllUrls(): Promise<string[]> {
+    const dataList = await this.dataModel
+      .find({}, { pageUrl: 1, _id: 0 })
+      .exec();
+    return dataList.map((data) => data.pageUrl);
+  }
+
+  async getDataByUrl(url: string): Promise<Data> {
+    const data = await this.dataModel.findOne({ pageUrl: url }).exec();
+    if (!data) {
+      throw new HttpException(
+        'No se encontraron datos para la URL proporcionada',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    return data;
+  }
 }

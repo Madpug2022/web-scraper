@@ -25,4 +25,24 @@ export class ScraperController {
       throw error;
     }
   }
+
+  @Get('urls')
+  async getAllUrls() {
+    try {
+      const urls = await this.scraperService.getAllUrls();
+      return { urls };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Get()
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  async getDataByUrl(@Query() urlDto: ScrapeDto) {
+    try {
+      return await this.scraperService.getDataByUrl(urlDto.url);
+    } catch (error) {
+      throw error;
+    }
+  }
 }
