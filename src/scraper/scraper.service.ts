@@ -17,25 +17,19 @@ export class ScraperService {
       try {
         const response = await axios.head(url);
         if (response.status === 404) {
-          throw new HttpException(
-            'Página no encontrada (404)',
-            HttpStatus.NOT_FOUND,
-          );
+          throw new HttpException('Page not found (404)', HttpStatus.NOT_FOUND);
         }
       } catch (error) {
         if (error.response && error.response.status === 404) {
-          throw new HttpException(
-            'Página no encontrada (404)',
-            HttpStatus.NOT_FOUND,
-          );
+          throw new HttpException('Page not found (404)', HttpStatus.NOT_FOUND);
         }
         throw new HttpException(
-          'Error al acceder a la URL',
+          'Error accesing the URL',
           HttpStatus.BAD_REQUEST,
         );
       }
 
-      console.log('Lanzando el navegador con Puppeteer');
+      console.log('Launching browser');
 
       browser = await puppeteer.launch({
         headless: true,
@@ -46,7 +40,7 @@ export class ScraperService {
         ],
       });
 
-      console.log('Navegador lanzado exitosamente');
+      console.log('Browser launched');
 
       const page = await browser.newPage();
 
@@ -56,26 +50,26 @@ export class ScraperService {
           'Chrome/85.0.4183.102 Safari/537.36',
       );
 
-      console.log('Navegando a la URL');
+      console.log('Navigating');
       await page.goto(url, { waitUntil: 'domcontentloaded' });
-      console.log('URL cargada');
+      console.log('URL loaded');
 
       const pageTitle = await page.title();
-      console.log('Título de la página:', pageTitle);
+      console.log('Page title:', pageTitle);
 
       const images = await page.$$eval('img', (imgs) =>
         imgs.map((img) => img.src),
       );
-      console.log('Imágenes encontradas:', images.length);
+      console.log('Found images:', images.length);
 
       const paragraphs = await page.$$eval('p', (ps) =>
         ps.map((p) => p.textContent.trim()).filter((text) => text.length > 0),
       );
-      console.log('Párrafos encontrados:', paragraphs.length);
+      console.log('Texts found:', paragraphs.length);
 
       if (paragraphs.length === 0) {
         throw new HttpException(
-          'No se encontraron párrafos en la página',
+          'No text was found in the page',
           HttpStatus.NO_CONTENT,
         );
       }
@@ -89,29 +83,29 @@ export class ScraperService {
         imageUrl:
           images.length > 0
             ? images[Math.floor(Math.random() * images.length)]
-            : 'No se encontraron imágenes en la página',
+            : 'No images found',
         pageTitle,
       };
 
       const createdData = new this.dataModel(dataToSave);
       await createdData.save();
 
-      console.log('Datos creados en la base de datos');
+      console.log('Data created');
 
       return createdData;
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
       }
-      console.error('Error en scrapeData:', error);
+      console.error('Error in scrapeData:', error);
       throw new HttpException(
-        'Error al procesar la solicitud',
+        'Error processing the URL',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     } finally {
       if (browser) {
         await browser.close();
-        console.log('Navegador cerrado');
+        console.log('Browser closed');
       }
     }
   }
@@ -127,7 +121,7 @@ export class ScraperService {
     const data = await this.dataModel.findOne({ pageUrl: url }).exec();
     if (!data) {
       throw new HttpException(
-        'No se encontraron datos para la URL proporcionada',
+        'No data found for the URL',
         HttpStatus.NOT_FOUND,
       );
     }
