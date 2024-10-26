@@ -12,7 +12,7 @@ services:
       - mongodb
 
   mongodb:
-    image: mongo:latest
+    image: mongodb/mongodb-community-server:latest
     container_name: mi_mongodb
     restart: always
     environment:

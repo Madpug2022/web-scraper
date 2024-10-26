@@ -1,10 +1,23 @@
 import { Module } from '@nestjs/common';
-import { ScraperService } from './scraper/scraper.service';
-import { ScraperController } from './scraper/scraper.controller';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { MongooseModule } from '@nestjs/mongoose';
+import { ScraperModule } from './scraper/scraper.module';
 
 @Module({
-  imports: [],
-  controllers: [ScraperController],
-  providers: [ScraperService],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        uri: configService.get<string>('DATABASE_URL'),
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      }),
+      inject: [ConfigService],
+    }),
+    ScraperModule,
+  ],
 })
 export class AppModule {}
