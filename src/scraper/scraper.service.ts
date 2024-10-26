@@ -133,4 +133,9 @@ export class ScraperService {
     }
     return data;
   }
+
+  async deleteAllData() {
+    await this.dataModel.deleteMany({}).exec();
+    return 'All data deleted';
+  }
 }

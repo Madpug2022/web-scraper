@@ -4,8 +4,7 @@ import {
   Post,
   Body,
   Query,
-  HttpException,
-  HttpStatus,
+  Delete,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -41,6 +40,15 @@ export class ScraperController {
   async getDataByUrl(@Query() urlDto: ScrapeDto) {
     try {
       return await this.scraperService.getDataByUrl(urlDto.url);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Delete()
+  async deleteAllData() {
+    try {
+      return await this.scraperService.deleteAllData();
     } catch (error) {
       throw error;
     }
