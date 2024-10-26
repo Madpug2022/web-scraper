@@ -9,6 +9,14 @@ import { Data, DataDocument } from '../schemas/data.schema';
 export class ScraperService {
   constructor(@InjectModel(Data.name) private dataModel: Model<DataDocument>) {}
 
+  /**
+   *
+   * @param url
+   * @returns {Promise<Data>} - The scraped data
+   * @throws {Error} - An error occurred while scraping data
+   *
+   * This method scrapes data from a given URL and returns the scraped data.
+   */
   async scrapeData(url: string): Promise<Data> {
     let browser: puppeteer.Browser;
     try {
@@ -110,6 +118,13 @@ export class ScraperService {
     }
   }
 
+  /**
+   *
+   * @returns {Promise<string[]>} - All URLs
+   * @throws {Error} - An error occurred while fetching URLs
+   *
+   * This method fetches all URLs from the database and returns them.
+   */
   async getAllUrls(): Promise<string[]> {
     const dataList = await this.dataModel
       .find({}, { pageUrl: 1, _id: 0 })
@@ -117,6 +132,14 @@ export class ScraperService {
     return dataList.map((data) => data.pageUrl);
   }
 
+  /**
+   *
+   * @param url
+   * @returns {Promise<Data>} - The data fetched from the URL
+   * @throws {Error} - An error occurred while fetching data
+   *
+   * This method fetches data from a given URL and returns the data.
+   */
   async getDataByUrl(url: string): Promise<Data> {
     const data = await this.dataModel.findOne({ pageUrl: url }).exec();
     if (!data) {
@@ -128,6 +151,10 @@ export class ScraperService {
     return data;
   }
 
+  /**
+   *
+   * @returns {Promise<string>} - All data deleted
+   */
   async deleteAllData() {
     await this.dataModel.deleteMany({}).exec();
     return 'All data deleted';

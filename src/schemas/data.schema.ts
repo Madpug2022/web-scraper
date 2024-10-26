@@ -3,6 +3,18 @@ import { Document } from 'mongoose';
 
 export type DataDocument = Data & Document;
 
+/**
+ * Data schema
+ * @param pageUrl: string
+ * @param pageText: string
+ * @param imageUrl: string
+ * @param pageTitle: string
+ *
+ * @returns DataDocument
+ *
+ * This section is used to define the schema for the data that will be stored in the database.
+ */
+
 @Schema()
 export class Data {
   @Prop({ required: true })
