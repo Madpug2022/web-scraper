@@ -1,99 +1,84 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
-
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
-
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+This is a web scraper API. 
+It runs a local container MongoDB instance and a local api App to retrieve certain information from a given URL
+
+## Requeriments
+
+node v22.6.0 - [Node official page](https://nodejs.org/en/download/package-manager) </br>
+npm v10.8.2 - [NPM docs](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) </br>
+docker desktop - [Docker desktop](https://www.docker.com/) 
 
 ## Project setup
 
-```bash
-$ npm install
-```
+There are two ways to set up the project.
+Internally there is a script that will:  </br>
+1- Created the required .env file  </br>
+2- Install node dependencies  </br>
+3- Set up the docker containers  </br>
 
-## Compile and run the project
+You can run the script by using the terminal inside the folder and runing:
+npm run setup.
 
-```bash
-# development
-$ npm run start
+** Alternative manual way **
 
-# watch mode
-$ npm run start:dev
+If you prefeer to go on a manual way you could follow the next steps:
 
-# production mode
-$ npm run start:prod
-```
+1- After cloning the repository change the current .env.example file's name to .env (.env information should never be shared since it is meant to protect sensitive information, but since this is a test we will use it)  </br>
+2- Run ``` npm install ``` to install the node dependencies  </br>
+3- (You must have installed and opened docker desktop for this step) Run ``` docker compose run -d ``` to initialize the containers [MongoDb and App]  </br>
 
-## Run tests
+This will run a local container with an instance of mongoDB (in port 27017) and the server (in port 3000)
 
-```bash
-# unit tests
-$ npm run test
+3.b- In case the Server is not starting correctly in the docker, you can laun ``` npm run start ``` in the console of the project to start the server in port 3000
 
-# e2e tests
-$ npm run test:e2e
+## Usage
 
-# test coverage
-$ npm run test:cov
-```
+Both methods will initialize a instance of the server in port 3000. The port has 4 endpoints:
 
-## Deployment
+@POST (/scrape, {body: {url: "example.com"}}):
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+This endpoint receives an url as body parameter and stores in database the next information:
+- The page url
+- Page title
+- Random < p > text
+- Random < img > src (if exists)
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+It returns an exception if the urls call an 404 error.
 
-```bash
-$ npm install -g mau
-$ mau deploy
-```
+@GET (/scrape/urls)
+Returns all the urls stored in the database
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+@GET (scrape?url=example.com)
+Returns the complete information of the provided url
 
-## Resources
+@DELETE (/scrape)
+Deletes all the information of the database and returns an ok message
 
-Check out a few resources that may come in handy when working with NestJS:
+## Ways of usage
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+There are two ways to manually test the server:
 
-## Support
+1- Using a testing tool like PostMan: I provide a collection that contains the endpoints and examples of usage. 
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+[Scrapper.postman_collection.json](https://github.com/user-attachments/files/17531033/Scrapper.postman_collection.json)
 
-## Stay in touch
+2- Using CURL commands in console:
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+You can interact with the server using curl commands:
 
-## License
+@POST:
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+curl -X POST http://localhost:3000/scrape \
+  -H "Content-Type: application/json" \
+  -d '{"url": "https://example.com"}'
+
+@GET:
+
+curl http://localhost:3000/scrape/urls
+
+@GET(url):
+
+curl "http://localhost:3000/scrape?url=https://example.com"
+
+
