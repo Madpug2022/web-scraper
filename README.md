@@ -11,30 +11,17 @@ docker desktop - [Docker desktop](https://www.docker.com/)
 
 ## Project setup
 
-There are two ways to set up the project.
-Internally there is a script that will:  </br>
-1- Created the required .env file  </br>
-2- Install node dependencies  </br>
-3- Set up the docker containers  </br>
-
-You can run the script by using the terminal inside the folder and runing:
-npm run setup.
-
-** Alternative manual way **
-
-If you prefeer to go on a manual way you could follow the next steps:
-
-1- After cloning the repository change the current .env.example file's name to .env (.env information should never be shared since it is meant to protect sensitive information, but since this is a test we will use it)  </br>
+1- After cloning the repository rename the current .env.example file's name to .env (.env information should never be shared since it is meant to protect sensitive information, but since this is a test we will use it)  </br>
 2- Run ``` npm install ``` to install the node dependencies  </br>
-3- (You must have installed and opened docker desktop for this step) Run ``` docker compose run -d ``` to initialize the containers [MongoDb and App]  </br>
+3- (You must have installed and opened docker desktop for this step) Run ``` docker compose run -d ``` to initialize the containers [MongoDb]  </br>
 
-This will run a local container with an instance of mongoDB (in port 27017) and the server (in port 3000)
+This will run a local container with an instance of mongoDB (in port 27017)
 
-3.b- In case the Server is not starting correctly in the docker, you can laun ``` npm run start ``` in the console of the project to start the server in port 3000
+4- Launch ``` npm run start ``` in the console of the project to start the server in port 3000
 
 ## Usage
 
-Both methods will initialize a instance of the server in port 3000. The port has 4 endpoints:
+This methods will initialize a instance of the server in port 3000. The port has 4 endpoints:
 
 @POST (/scrape, {body: {url: "example.com"}}):
 
@@ -43,8 +30,7 @@ This endpoint receives an url as body parameter and stores in database the next 
 - Page title
 - Random < p > text
 - Random < img > src (if exists)
-
-It returns an exception if the urls call an 404 error.
+- A boolean that will sor that a page migth be or not an 404 error. (The scraping endpoint detect the 404 error in header, but some pages migth not return this error, so the scraper will try to find 404 texts on the content)
 
 @GET (/scrape/urls)
 Returns all the urls stored in the database
