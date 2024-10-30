@@ -28,6 +28,9 @@ export class Data {
 
   @Prop({ required: true })
   pageTitle: string;
+
+  @Prop({ required: true })
+  couldBeError: boolean;
 }
 
 export const DataSchema = SchemaFactory.createForClass(Data);

@@ -1,27 +1,33 @@
-version: '3.8'
+version: '3.9'
 
 services:
-  app:
-    build: .
-    command: npm run start
-    volumes:
-      - .:/usr/src/app
-    ports:
-      - '3000:3000'
-    depends_on:
-      - mongodb
-
-  mongodb:
-    image: mongodb/mongodb-community-server:latest
-    container_name: mi_mongodb
+  mongo-server:
+    image: mongo:latest
+    container_name: mongodb-server
     restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: guybrush
       MONGO_INITDB_ROOT_PASSWORD: iwannabeapirate
     ports:
       - '27017:27017'
+    networks:
+      - mongodb_network
     volumes:
       - mongodb_data:/data/db
-
+  mongo-client:
+    image: mongo-express:latest
+    container_name: mongo-express
+    restart: always
+    depends_on:
+      - mongo-server
+    environment:
+      ME_CONFIG_MONGODB_PORT: 27017
+      ME_CONFIG_MONGODB_SERVER: mongo-server
+    ports:
+      - '8081:8081'
+    networks:
+      - mongodb_network
 volumes:
   mongodb_data:
+networks:
+  mongodb_network:

@@ -9,7 +9,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ScraperService } from './scraper.service';
-import { ScrapeDto } from './scraper.dto';
+import { ScrapeDto, UrlDto } from './scraper.dto';
 
 /**
  * Scraper Controller
@@ -29,7 +29,7 @@ export class ScraperController {
   @UsePipes(new ValidationPipe({ whitelist: true }))
   /**
    * Scrape data from a given URL
-   * @param {ScrapeDto} scrapeDto - The URL to scrape data from
+   * @Body {url} - The URL to scrape data from
    * @returns {Promise} - The scraped data
    * @throws {Error} - An error occurred while scraping data
    *
@@ -53,8 +53,6 @@ export class ScraperController {
    * Get all URLs
    * @returns {Promise} - All URLs
    * @throws {Error} - An error occurred while fetching URLs
-   *
-   *
    * This method fetches all URLs from the database and returns them.
    *
    * @example
@@ -83,7 +81,7 @@ export class ScraperController {
    * This method fetches data from a given URL and returns the data.
    */
   @UsePipes(new ValidationPipe({ whitelist: true }))
-  async getDataByUrl(@Query() urlDto: ScrapeDto) {
+  async getDataByUrl(@Query() urlDto: UrlDto) {
     try {
       return await this.scraperService.getDataByUrl(urlDto.url);
     } catch (error) {

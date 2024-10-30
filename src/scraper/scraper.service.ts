@@ -1,6 +1,5 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import * as puppeteer from 'puppeteer';
-import axios from 'axios';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Data, DataDocument } from '../schemas/data.schema';
@@ -22,23 +21,7 @@ export class ScraperService {
     try {
       console.log('Scraping URL:', url);
 
-      try {
-        const response = await axios.head(url);
-        if (response.status === 404) {
-          throw new HttpException('Page not found (404)', HttpStatus.NOT_FOUND);
-        }
-      } catch (error) {
-        if (error.response && error.response.status === 404) {
-          throw new HttpException('Page not found (404)', HttpStatus.NOT_FOUND);
-        }
-        throw new HttpException(
-          'Error accesing the URL',
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-
-      console.log('Launching browser');
-
+      // Lanzar el navegador Puppeteer
       browser = await puppeteer.launch({
         headless: true,
         args: [
@@ -51,7 +34,6 @@ export class ScraperService {
       console.log('Browser launched');
 
       const page = await browser.newPage();
-
       await page.setUserAgent(
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) ' +
           'AppleWebKit/537.36 (KHTML, like Gecko) ' +
@@ -59,14 +41,48 @@ export class ScraperService {
       );
 
       console.log('Navigating');
-      await page.goto(url, { waitUntil: 'domcontentloaded' });
+
+      const response = await page.goto(url, { waitUntil: 'domcontentloaded' });
+
+      if (!response || response.status() >= 400) {
+        throw new HttpException('Page not found', HttpStatus.NOT_FOUND);
+      }
+
       console.log('URL loaded');
 
+      // This will try to detect if the page is an error page without depending on the status code
+      // Since some pages return a 200 status code even if they are error pages
+      // But this is not a foolproof method
+      // So for safeguarding we will store this as a new value in the database
+      // Wich indicated that the page could be an error page
+
       const pageTitle = await page.title();
+      const h1Element = await page.$('h1');
+      const h2Element = await page.$('h2');
+
+      const h1Text = h1Element
+        ? await page.evaluate((el) => el.textContent.toLowerCase(), h1Element)
+        : '';
+      const h2Text = h2Element
+        ? await page.evaluate((el) => el.textContent.toLowerCase(), h2Element)
+        : '';
+
+      const errorIndicators = [
+        '404 Page Not Found',
+        '404 Pagina no encontrada',
+        '404 Página no encontrada',
+      ];
+      const isErrorPage = errorIndicators.some(
+        (indicator) =>
+          pageTitle.toLowerCase().includes(indicator) ||
+          h1Text.includes(indicator) ||
+          h2Text.includes(indicator),
+      );
+
       console.log('Page title:', pageTitle);
 
       const images = await page.$$eval('img', (imgs) =>
-        imgs.map((img) => img.src),
+        imgs.map((img) => img.getAttribute('src')).filter((src) => src),
       );
       console.log('Found images:', images.length);
 
@@ -82,17 +98,19 @@ export class ScraperService {
         );
       }
 
-      const randomIndex = Math.floor(Math.random() * paragraphs.length);
-      const randomParagraph = paragraphs[randomIndex];
+      const longestParagraph = paragraphs.reduce((a, b) =>
+        a.length > b.length ? a : b,
+      );
+
+      const imageUrl =
+        images.find((img) => img && img.startsWith('http')) || null;
 
       const dataToSave = {
         pageUrl: url,
-        pageText: randomParagraph,
-        imageUrl:
-          images.length > 0
-            ? images[Math.floor(Math.random() * images.length)]
-            : 'No images found',
+        pageText: longestParagraph,
+        imageUrl,
         pageTitle,
+        couldBeError: isErrorPage,
       };
 
       const createdData = new this.dataModel(dataToSave);
@@ -102,10 +120,10 @@ export class ScraperService {
 
       return createdData;
     } catch (error) {
+      console.error('Error in scrapeData:', error);
       if (error instanceof HttpException) {
         throw error;
       }
-      console.error('Error in scrapeData:', error);
       throw new HttpException(
         'Error processing the URL',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -120,22 +138,20 @@ export class ScraperService {
 
   /**
    *
-   * @returns {Promise<string[]>} - All URLs
+   * @returns {<string[]>} - All URLs
    * @throws {Error} - An error occurred while fetching URLs
    *
    * This method fetches all URLs from the database and returns them.
    */
   async getAllUrls(): Promise<string[]> {
-    const dataList = await this.dataModel
-      .find({}, { pageUrl: 1, _id: 0 })
-      .exec();
+    const dataList = await this.dataModel.find({}, { _id: 0 }).exec();
     return dataList.map((data) => data.pageUrl);
   }
 
   /**
    *
    * @param url
-   * @returns {Promise<Data>} - The data fetched from the URL
+   * @returns {<Data>} - The data fetched from the URL
    * @throws {Error} - An error occurred while fetching data
    *
    * This method fetches data from a given URL and returns the data.
@@ -153,7 +169,7 @@ export class ScraperService {
 
   /**
    *
-   * @returns {Promise<string>} - All data deleted
+   * @returns {<string>} - All data deleted
    */
   async deleteAllData() {
     await this.dataModel.deleteMany({}).exec();

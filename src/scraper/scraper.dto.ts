@@ -14,3 +14,9 @@ export class ScrapeDto {
   @IsNotEmpty()
   url: string;
 }
+
+export class UrlDto {
+  @IsUrl()
+  @IsNotEmpty()
+  url: string;
+}

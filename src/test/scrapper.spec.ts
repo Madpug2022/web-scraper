@@ -10,6 +10,7 @@ const testData: Data = {
   pageText: 'I am a migthy corsair!',
   imageUrl: 'https://piratebay.org/majestous-parrot.jpg',
   pageTitle: 'Something smells fishy',
+  couldBeError: false,
 };
 
 const testUrls = ['https://piratebay.org', 'https://somethingelseidunno.com'];
